@@ -28,23 +28,23 @@ public class Solution {
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 if (grid[i][j] == 0) {
-                    HashSet<int> colors = new HashSet<int>();
-                    int currentArea = 1;
+                    HashSet<int> neighborColors = new HashSet<int>();
+                    int totalArea = 1;
                     
                     foreach (var dir in directions) {
-                        int newRow = i + dir[0];
-                        int newCol = j + dir[1];
+                        int ni = i + dir[0];
+                        int nj = j + dir[1];
                         
-                        if (IsValid(newRow, newCol) && grid[newRow][newCol] > 1) {
-                            colors.Add(grid[newRow][newCol]);
+                        if (IsValid(ni, nj) && grid[ni][nj] > 1) {
+                            neighborColors.Add(grid[ni][nj]);
                         }
                     }
                     
-                    foreach (int color in colors) {
-                        currentArea += areaMap[color];
+                    foreach (int color in neighborColors) {
+                        totalArea += areaMap[color];
                     }
                     
-                    maxArea = Math.Max(maxArea, currentArea);
+                    maxArea = Math.Max(maxArea, totalArea);
                 }
             }
         }
@@ -52,20 +52,20 @@ public class Solution {
         return maxArea == 0 ? n * n : maxArea;
     }
     
-    private int ColorIsland(int[][] grid, int row, int col, int color) {
-        if (!IsValid(row, col) || grid[row][col] != 1) return 0;
+    private int ColorIsland(int[][] grid, int i, int j, int color) {
+        if (!IsValid(i, j) || grid[i][j] != 1) return 0;
         
-        grid[row][col] = color;
+        grid[i][j] = color;
         int area = 1;
         
         foreach (var dir in directions) {
-            area += ColorIsland(grid, row + dir[0], col + dir[1], color);
+            area += ColorIsland(grid, i + dir[0], j + dir[1], color);
         }
         
         return area;
     }
     
-    private bool IsValid(int row, int col) {
-        return row >= 0 && row < n && col >= 0 && col < n;
+    private bool IsValid(int i, int j) {
+        return i >= 0 && i < n && j >= 0 && j < n;
     }
 }
