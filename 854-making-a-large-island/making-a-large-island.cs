@@ -1,66 +1,71 @@
 public class Solution {
-    private int n;
-    private Dictionary<int, int> areas;
-    private int[] dx = {-1, 1, 0, 0};
-    private int[] dy = {0, 0, -1, 1};
+    int n;
+    Dictionary<int, int> areaMap;
+    int[][] directions = new int[][] {
+        new int[] {1, 0},
+        new int[] {-1, 0},
+        new int[] {0, 1},
+        new int[] {0, -1}
+    };
 
     public int LargestIsland(int[][] grid) {
         n = grid.Length;
-        areas = new Dictionary<int, int>();
-        int islandId = 2;
+        areaMap = new Dictionary<int, int>();
+        int colorIndex = 2;
         int maxArea = 0;
         
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 if (grid[i][j] == 1) {
-                    int area = DFS(grid, i, j, islandId);
-                    areas[islandId] = area;
+                    int area = ColorIsland(grid, i, j, colorIndex);
+                    areaMap[colorIndex] = area;
                     maxArea = Math.Max(maxArea, area);
-                    islandId++;
+                    colorIndex++;
                 }
             }
         }
-
+        
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 if (grid[i][j] == 0) {
-                    HashSet<int> neighbors = new HashSet<int>();
-                    int totalArea = 1;
-
-                    for (int k = 0; k < 4; k++) {
-                        int ni = i + dx[k];
-                        int nj = j + dy[k];
+                    HashSet<int> colors = new HashSet<int>();
+                    int currentArea = 1;
+                    
+                    foreach (var dir in directions) {
+                        int newRow = i + dir[0];
+                        int newCol = j + dir[1];
                         
-                        if (IsValid(ni, nj) && grid[ni][nj] > 1) {
-                            int id = grid[ni][nj];
-                            if (!neighbors.Contains(id)) {
-                                neighbors.Add(id);
-                                totalArea += areas[id];
-                            }
+                        if (IsValid(newRow, newCol) && grid[newRow][newCol] > 1) {
+                            colors.Add(grid[newRow][newCol]);
                         }
                     }
-                    maxArea = Math.Max(maxArea, totalArea);
+                    
+                    foreach (int color in colors) {
+                        currentArea += areaMap[color];
+                    }
+                    
+                    maxArea = Math.Max(maxArea, currentArea);
                 }
             }
         }
-
+        
         return maxArea == 0 ? n * n : maxArea;
     }
-
-    private int DFS(int[][] grid, int i, int j, int islandId) {
-        if (!IsValid(i, j) || grid[i][j] != 1) return 0;
+    
+    private int ColorIsland(int[][] grid, int row, int col, int color) {
+        if (!IsValid(row, col) || grid[row][col] != 1) return 0;
         
-        grid[i][j] = islandId;
+        grid[row][col] = color;
         int area = 1;
-
-        for (int k = 0; k < 4; k++) {
-            area += DFS(grid, i + dx[k], j + dy[k], islandId);
+        
+        foreach (var dir in directions) {
+            area += ColorIsland(grid, row + dir[0], col + dir[1], color);
         }
-
+        
         return area;
     }
-
-    private bool IsValid(int i, int j) {
-        return i >= 0 && i < n && j >= 0 && j < n;
+    
+    private bool IsValid(int row, int col) {
+        return row >= 0 && row < n && col >= 0 && col < n;
     }
 }
